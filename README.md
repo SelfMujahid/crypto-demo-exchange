@@ -1,41 +1,25 @@
-# 📱 Mobile Crypto Practice App
+# Crypto Demo Exchange
 
-A React Native mobile app for practicing crypto trading and mobile development.
+Ek demo crypto exchange Android app — Binance/Bitget/Coinbase jaisa UI aur experience, 
+lekin real money ke bina. Live prices Binance ke public WebSocket (WSS) se aate hain, 
+taaki data extreme fast aur real-time ho.
 
-## 🎯 Learning Objectives
-- React Native components
-- State management with useState/useEffect
-- Mobile UI/UX design
-- API integration practice
-- GitHub mobile development workflow
+## Tech Stack
+- **Language:** Kotlin (native Android)
+- **UI:** Jetpack Compose + Material 3
+- **Real-time data:** WebSocket (WSS) — Binance public stream
+- **Build:** GitHub Actions (cloud build, no local Android Studio needed)
 
-## 🚀 Features
-- Simulated crypto price updates
-- Trading signals (BUY/SELL/HOLD)
-- Refresh functionality
-- Beautiful mobile UI
-- Practice tasks for learning
+## Build Status
+Har push pe GitHub Actions automatically APK build karta hai. 
+APK "Actions" tab > latest run > "Artifacts" section se download hoti hai.
 
-## 🛠️ How to Practice
-1. Study the code structure
-2. Try the practice tasks below
-3. Modify colors and styles
-4. Add new features
-5. Experiment with different components
+## Project Structure
+- `app/` — main Android app module
+- `.github/workflows/build.yml` — CI/CD pipeline jo APK banata hai
 
-## 📝 Practice Tasks
-- [ ] Add more cryptocurrencies
-- [ ] Change the color scheme
-- [ ] Add a dark mode
-- [ ] Implement real API calls
-- [ ] Add a portfolio section
-- [ ] Create price charts
-- [ ] Add push notifications
-
-## 💡 Tips for Mobile Development
-- Keep components small and reusable
-- Use responsive styling
-- Test on different screen sizes
-- Optimize for performance
-
-**Happy Coding! 🎉**
+## Roadmap
+- [x] Phase 1: Base project + CI pipeline
+- [ ] Phase 2: Binance WSS se live prices
+- [ ] Phase 3: Demo balance + buy/sell engine
+- [ ] Phase 4: Charts + order book UI
