@@ -36,19 +36,28 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PriceListScreen(viewModel: PriceViewModel) {
     val prices by viewModel.prices.collectAsState()
+    val error by viewModel.errorMessage.collectAsState()
 
     Column(modifier = Modifier.fillMaxSize()) {
         TopAppBar(title = { Text("Crypto Demo Exchange") })
 
-        if (prices.isEmpty()) {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
-                Text("Connecting to live prices...")
+        when {
+            error != null -> {
+                Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    Text("Connection error: $error")
+                }
             }
-        } else {
-            LazyColumn {
-                items(prices) { ticker ->
-                    PriceRow(ticker)
-                    Divider()
+            prices.isEmpty() -> {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = androidx.compose.ui.Alignment.Center) {
+                    Text("Connecting to live prices...")
+                }
+            }
+            else -> {
+                LazyColumn {
+                    items(prices) { ticker ->
+                        PriceRow(ticker)
+                        Divider()
+                    }
                 }
             }
         }
