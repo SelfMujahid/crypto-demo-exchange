@@ -9,6 +9,7 @@ import okhttp3.WebSocket
 import okhttp3.WebSocketListener
 import okhttp3.Response
 import org.json.JSONArray
+import java.util.concurrent.TimeUnit
 
 data class TickerPrice(
     val symbol: String,
@@ -18,34 +19,39 @@ data class TickerPrice(
 
 class BinanceWebSocketClient {
 
-    private val client = OkHttpClient()
+    private val client = OkHttpClient.Builder()
+        .pingInterval(20, TimeUnit.SECONDS)
+        .build()
+
     private var webSocket: WebSocket? = null
 
-    // Yeh streams Binance ke "24hr mini ticker" hain — multiple coins ek saath
-    private val symbols = listOf("btcusdt", "ethusdt", "bnbusdt", "solusdt", "xrpusdt")
-
-    fun observePrices(): Flow<List<TickerPrice>> = callbackFlow {
-        val streams = symbols.joinToString("/") { "$it@ticker" }
-        val url = "wss://stream.binance.com:9443/stream?streams=$streams"
-
+    // "!ticker@arr" = Binance ke saare trading pairs ka live 24hr ticker, ek hi stream mein
+    fun observeAllPrices(): Flow<List<TickerPrice>> = callbackFlow {
+        val url = "wss://stream.binance.com:9443/ws/!ticker@arr"
         val request = Request.Builder().url(url).build()
 
         webSocket = client.newWebSocket(request, object : WebSocketListener() {
             override fun onOpen(webSocket: WebSocket, response: Response) {
-                // Connection ho gaya, ab data aana shuru hoga
+                // Connected — data ab continuously aayega
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
-                    val json = org.json.JSONObject(text)
-                    val data = json.getJSONObject("data")
-                    val symbol = data.getString("s")
-                    val price = data.getString("c").toDouble()
-                    val percentChange = data.getString("P").toDouble()
-
-                    trySend(listOf(TickerPrice(symbol, price, percentChange)))
+                    val jsonArray = JSONArray(text)
+                    val list = mutableListOf<TickerPrice>()
+                    for (i in 0 until jsonArray.length()) {
+                        val item = jsonArray.getJSONObject(i)
+                        val symbol = item.getString("s")
+                        // Sirf USDT pairs rakhte hain — cleaner list ke liye
+                        if (symbol.endsWith("USDT")) {
+                            val price = item.getString("c").toDoubleOrNull() ?: continue
+                            val percentChange = item.getString("P").toDoubleOrNull() ?: 0.0
+                            list.add(TickerPrice(symbol, price, percentChange))
+                        }
+                    }
+                    trySend(list)
                 } catch (e: Exception) {
-                    // Malformed message, ignore
+                    // Malformed message, ignore aur agla message wait karo
                 }
             }
 
@@ -57,5 +63,11 @@ class BinanceWebSocketClient {
         awaitClose {
             webSocket?.close(1000, "Closing")
         }
+    }
+
+    private fun String.toDoubleOrNull(): Double? = try {
+        this.toDouble()
+    } catch (e: NumberFormatException) {
+        null
     }
 }
