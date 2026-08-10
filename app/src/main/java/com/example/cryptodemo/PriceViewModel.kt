@@ -13,17 +13,14 @@ class PriceViewModel : ViewModel() {
 
     private val wsClient = BinanceWebSocketClient()
 
-    private val _prices = MutableStateFlow<Map<String, TickerPrice>>(emptyMap())
-    val prices: StateFlow<Map<String, TickerPrice>> = _prices.asStateFlow()
+    private val _prices = MutableStateFlow<List<TickerPrice>>(emptyList())
+    val prices: StateFlow<List<TickerPrice>> = _prices.asStateFlow()
 
     init {
         viewModelScope.launch {
-            wsClient.observePrices().collect { updates ->
-                val current = _prices.value.toMutableMap()
-                updates.forEach { ticker ->
-                    current[ticker.symbol] = ticker
-                }
-                _prices.value = current
+            wsClient.observeAllPrices().collect { updates ->
+                // Alphabetically sorted rakhte hain taaki list mein position stable rahe
+                _prices.value = updates.sortedBy { it.symbol }
             }
         }
     }
