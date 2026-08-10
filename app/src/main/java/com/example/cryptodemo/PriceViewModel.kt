@@ -16,11 +16,17 @@ class PriceViewModel : ViewModel() {
     private val _prices = MutableStateFlow<List<TickerPrice>>(emptyList())
     val prices: StateFlow<List<TickerPrice>> = _prices.asStateFlow()
 
+    private val _errorMessage = MutableStateFlow<String?>(null)
+    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+
     init {
         viewModelScope.launch {
-            wsClient.observeAllPrices().collect { updates ->
-                // Alphabetically sorted rakhte hain taaki list mein position stable rahe
-                _prices.value = updates.sortedBy { it.symbol }
+            try {
+                wsClient.observeAllPrices().collect { updates ->
+                    _prices.value = updates.sortedBy { it.symbol }
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = e.message ?: "Unknown connection error"
             }
         }
     }
