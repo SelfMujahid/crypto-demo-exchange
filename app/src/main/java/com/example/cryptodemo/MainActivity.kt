@@ -32,6 +32,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PriceListScreen(viewModel: PriceViewModel) {
     val prices by viewModel.prices.collectAsState()
