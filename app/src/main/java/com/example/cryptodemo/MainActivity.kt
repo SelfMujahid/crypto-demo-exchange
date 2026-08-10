@@ -46,7 +46,7 @@ fun PriceListScreen(viewModel: PriceViewModel) {
             }
         } else {
             LazyColumn {
-                items(prices.values.toList()) { ticker ->
+                items(prices) { ticker ->
                     PriceRow(ticker)
                     Divider()
                 }
