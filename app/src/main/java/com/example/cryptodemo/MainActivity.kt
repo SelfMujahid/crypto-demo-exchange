@@ -7,6 +7,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -663,3 +664,4 @@ fun AppTheme(content: @Composable () -> Unit) {
 
 fun Double.formatPrice(): String = if (this == 0.0) "0.00" else BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
 fun Double.formatPercent(): String = BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
+
