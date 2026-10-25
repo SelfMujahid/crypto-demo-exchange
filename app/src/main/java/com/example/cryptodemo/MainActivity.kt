@@ -3,13 +3,10 @@ package com.example.cryptodemo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.viewModels
-import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,23 +20,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.cryptodemo.data.BinanceMarketService
 import com.example.cryptodemo.model.*
 import java.math.BigDecimal
 import java.math.RoundingMode
-import kotlin.math.abs
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -374,11 +363,11 @@ fun OrderForm(
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            FilterChip(selected = uiState.marginMode == "CROSS", onClick = { onMarginModeChanged("CROSS") }, label = { Text("Cross") }, colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFFEDC967), selectedLabelColor = Color(0xFF0B1220), labelColor = Color.White))
-            FilterChip(selected = uiState.marginMode == "ISOLATED", onClick = { onMarginModeChanged("ISOLATED") }, label = { Text("Isolated") }, colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Color(0xFFEDC967), selectedLabelColor = Color(0xFF0B1220), labelColor = Color.White))
+            FilterChip(selected = uiState.marginMode == "CROSS", onClick = { onMarginModeChanged("CROSS") }, label = { Text("Cross") }, colors = FilterChipDefaults.filterChipColors())
+            FilterChip(selected = uiState.marginMode == "ISOLATED", onClick = { onMarginModeChanged("ISOLATED") }, label = { Text("Isolated") }, colors = FilterChipDefaults.filterChipColors())
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Leverage")
             BasicTextField(
                 value = uiState.leverageText,
@@ -392,9 +381,15 @@ fun OrderForm(
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
             Text("Order Type")
-            DropdownMenuItem(label = { Text(uiState.orderType) }, onClick = { onOrderTypeChanged("MARKET") })
+            Surface(
+                color = Color(0xFF121B2D),
+                shape = RoundedCornerShape(10.dp),
+                tonalElevation = 0.dp
+            ) {
+                Text(uiState.orderType, color = Color.White, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
+            }
         }
 
         val limitPrice = uiState.limitPriceText
@@ -607,7 +602,6 @@ fun PriceChart(candles: List<Candle>) {
     val low = visible.minOf { it.low }
     val high = visible.maxOf { it.high }
     val span = if (high > low) high - low else 1.0
-    val mid = visible.last().close
 
     Canvas(
         modifier = Modifier
@@ -669,4 +663,3 @@ fun AppTheme(content: @Composable () -> Unit) {
 
 fun Double.formatPrice(): String = if (this == 0.0) "0.00" else BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
 fun Double.formatPercent(): String = BigDecimal.valueOf(this).setScale(2, RoundingMode.HALF_UP).toPlainString()
-
